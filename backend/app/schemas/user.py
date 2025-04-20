@@ -1,0 +1,42 @@
+from typing import List, Optional
+from pydantic import BaseModel, EmailStr, constr
+from uuid import UUID
+from datetime import datetime
+from ..models import UserRole, AuthProvider
+
+class UserBase(BaseModel):
+    email: EmailStr
+    first_name: constr(min_length=1, max_length=50)
+    last_name: constr(min_length=1, max_length=50)
+    role: UserRole
+    is_active: bool = True
+    is_verified: bool = False
+
+class UserCreate(UserBase):
+    password: constr(min_length=8)
+    auth_provider: AuthProvider = AuthProvider.PASSWORD
+
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    first_name: Optional[constr(min_length=1, max_length=50)] = None
+    last_name: Optional[constr(min_length=1, max_length=50)] = None
+    password: Optional[constr(min_length=8)] = None
+    role: Optional[UserRole] = None
+
+class UserInDB(UserBase):
+    id: UUID
+    auth_provider: AuthProvider
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class UserResponse(UserInDB):
+    pass
+
+class UserListResponse(BaseModel):
+    users: List[UserResponse]
+    total: int
+    page: int
+    size: int 

@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from app.database import Base, engine
-from app.models import User, DBConnection, DataCheck, SeverityRecipient, CheckRun
+from app.models import User
 
 def drop_tables():
     """Drop all database tables."""
@@ -50,5 +50,12 @@ if __name__ == "__main__":
         print("Please ensure PostgreSQL is running and the database exists.")
         sys.exit(1)
     
+    # Drop existing tables
+    print("\nDropping existing tables...")
+    drop_tables()
+    
     # Initialize database
-    init_db() 
+    print("\nCreating tables...")
+    init_db()
+    
+    print("\nDatabase initialization completed successfully!") 
