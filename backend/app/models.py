@@ -12,14 +12,35 @@ class UserRole(str, enum.Enum):
     CONFIGURATOR = "configurator"
     VIEWER = "viewer"
 
-class User(Base):
+class AuthProvider(str, enum.Enum):
+    GOOGLE = "google"
+    OKTA = "okta"
+    PASSWORD = "password"
+
+class TimestampMixin:
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class User(Base, TimestampMixin):
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, unique=True, index=True, nullable=False)
     role = Column(SQLEnum(UserRole), nullable=False)
+    
+    # Authentication fields
+    auth_provider = Column(SQLEnum(AuthProvider), nullable=False, default=AuthProvider.PASSWORD)
+    hashed_password = Column(String, nullable=True)  # Nullable because not needed for OAuth users
+    is_active = Column(Boolean, default=True, nullable=False)
+    is_verified = Column(Boolean, default=False, nullable=False)
+    
+    # OAuth related fields
+    oauth_id = Column(String, nullable=True)  # ID from OAuth provider
+    oauth_access_token = Column(String, nullable=True)
+    oauth_refresh_token = Column(String, nullable=True)
+    oauth_token_expires_at = Column(DateTime, nullable=True)
 
-class DBConnection(Base):
+class DBConnection(Base, TimestampMixin):
     __tablename__ = "db_connections"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -30,7 +51,7 @@ class DBConnection(Base):
     username = Column(String, nullable=False)
     encrypted_password = Column(String, nullable=False)
 
-class DataCheck(Base):
+class DataCheck(Base, TimestampMixin):
     __tablename__ = "data_checks"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -49,7 +70,7 @@ class DataCheck(Base):
     severity_recipients = relationship("SeverityRecipient", back_populates="data_check")
     check_runs = relationship("CheckRun", back_populates="data_check")
 
-class SeverityRecipient(Base):
+class SeverityRecipient(Base, TimestampMixin):
     __tablename__ = "severity_recipients"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -60,7 +81,7 @@ class SeverityRecipient(Base):
 
     data_check = relationship("DataCheck", back_populates="severity_recipients")
 
-class CheckRun(Base):
+class CheckRun(Base, TimestampMixin):
     __tablename__ = "check_runs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
