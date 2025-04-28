@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 # Add the parent directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from app.database import Base, engine
-from app.models import User
+from app.db.session import engine, Base
+from app.models.user import User
 
 def drop_tables():
     """Drop all database tables."""

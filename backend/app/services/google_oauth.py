@@ -11,6 +11,8 @@ import aiohttp
 import json
 import certifi
 import ssl
+from typing import Dict, Any
+import uuid
 
 class GoogleOAuthService:
     def __init__(self, db: Session):
@@ -18,8 +20,9 @@ class GoogleOAuthService:
         self.client_id = settings.GOOGLE_CLIENT_ID
         self.client_secret = settings.GOOGLE_CLIENT_SECRET
         self.ssl_context = ssl.create_default_context(cafile=certifi.where())
+        self.user_service = UserService(db)
 
-    async def exchange_code_for_token(self, code: str, redirect_uri: str) -> dict:
+    async def exchange_code_for_token(self, code: str, redirect_uri: str) -> Dict[str, Any]:
         """Exchange authorization code for tokens."""
         token_url = "https://oauth2.googleapis.com/token"
         data = {
@@ -30,16 +33,23 @@ class GoogleOAuthService:
             "grant_type": "authorization_code",
         }
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(token_url, data=data, ssl=self.ssl_context) as response:
-                if response.status != 200:
-                    response_text = await response.text()
-                    print(f"Token exchange failed. Status: {response.status}, Response: {response_text}")
-                    raise ValueError(f"Failed to exchange code for token: {response_text}")
-                
-                token_data = await response.json()
-                print("Token exchange successful:", token_data)
-                return token_data
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(token_url, data=data, ssl=self.ssl_context) as response:
+                    if response.status != 200:
+                        response_text = await response.text()
+                        print(f"Token exchange failed. Status: {response.status}, Response: {response_text}")
+                        raise ValueError(f"Failed to exchange code for token: {response_text}")
+                    
+                    token_data = await response.json()
+                    print("Token exchange successful")
+                    return token_data
+        except aiohttp.ClientError as e:
+            print(f"Network error during token exchange: {str(e)}")
+            raise ValueError(f"Network error during token exchange: {str(e)}")
+        except Exception as e:
+            print(f"Unexpected error during token exchange: {str(e)}")
+            raise ValueError(f"Unexpected error during token exchange: {str(e)}")
 
     async def verify_token(self, token: str) -> dict:
         """Verify the Google ID token and return user info."""
@@ -53,47 +63,43 @@ class GoogleOAuthService:
             
             # Verify the token's audience
             if idinfo['aud'] != self.client_id:
+                print(f"Invalid audience. Expected: {self.client_id}, Got: {idinfo['aud']}")
                 raise ValueError('Invalid audience')
 
             # Verify the token's issuer
             if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                print(f"Invalid issuer. Got: {idinfo['iss']}")
                 raise ValueError('Invalid issuer')
 
             return idinfo
         except Exception as e:
+            print(f"Token verification failed: {str(e)}")
             raise ValueError(f'Invalid token: {str(e)}')
 
-    async def get_or_create_user(self, google_user_info: dict) -> User:
-        """Get or create a user based on Google user info."""
-        # Print the structure for debugging
-        print("Google User Info:", google_user_info)
-        
-        # Extract email from the response
-        email = google_user_info.get('email')
+    async def get_or_create_user(self, user_info: Dict[str, Any]) -> User:
+        email = user_info.get("email")
         if not email:
-            raise ValueError("Email not found in Google user info")
-            
-        user_service = UserService(self.db)
-        user = user_service.get_user_by_email(email)
-        
-        if not user:
-            # Create new user using UserCreate schema
-            user_data = UserCreate(
-                email=email,
-                first_name=google_user_info.get('given_name', ''),
-                last_name=google_user_info.get('family_name', ''),
-                password=None,  # No password for OAuth users
-                role=UserRole.VIEWER,  # Default role
-                is_active=True,
-                auth_provider=AuthProvider.GOOGLE  # Set auth provider
-            )
-            try:
-                user = user_service.create_user(user_data)
-                print("Created new user:", user)
-            except Exception as e:
-                print("Error creating user:", str(e))
-                raise
-        
+            raise ValueError("No email provided in user info")
+
+        # Check if user already exists
+        user = self.user_service.get_user_by_email(email)
+        if user:
+            print(f"Found existing user: {email}")
+            return user
+
+        # Create new user without password
+        user_data = UserCreate(
+            id=str(uuid.uuid4()),  # Generate a new UUID
+            email=email,
+            first_name=user_info.get("given_name"),
+            last_name=user_info.get("family_name"),
+            is_verified=user_info.get("email_verified", False),
+            auth_provider=AuthProvider.GOOGLE
+        )
+
+        print(f"Creating new user: {email}")
+        user = self.user_service.create_user(user_data)
+        print(f"User created: {user.email}")
         return user
 
 def google_oauth_service(db: Session) -> GoogleOAuthService:

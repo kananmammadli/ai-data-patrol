@@ -1,10 +1,12 @@
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
-from ..models import User, UserRole
+from ..models import User, UserRole, AuthProvider
 from ..schemas.user import UserCreate, UserUpdate, UserResponse
 from passlib.context import CryptContext
 from uuid import UUID
+from app.core.security import get_password_hash
+import uuid
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -49,31 +51,48 @@ class UserService:
         """Get a user by email."""
         return self.db.query(User).filter(User.email == email).first()
 
-    def create_user(self, user_data: UserCreate) -> UserResponse:
+    def create_user(self, user: UserCreate) -> UserResponse:
         """Create a new user."""
+        # Ensure auth_provider is a valid enum value
+        auth_provider = user.auth_provider
+        if auth_provider is None:
+            auth_provider = AuthProvider.PASSWORD
+        elif isinstance(auth_provider, str):
+            try:
+                auth_provider = AuthProvider(auth_provider.upper())
+            except ValueError:
+                auth_provider = AuthProvider.PASSWORD
+
         db_user = User(
-            email=user_data.email,
-            first_name=user_data.first_name,
-            last_name=user_data.last_name,
-            password_hash=get_password_hash(user_data.password) if user_data.password else None,
-            role=user_data.role,
-            is_active=user_data.is_active,
-            auth_provider=user_data.auth_provider
+            id=str(user.id) if user.id else str(uuid.uuid4()),
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            role=user.role,
+            is_active=user.is_active,
+            is_verified=user.is_verified,
+            auth_provider=auth_provider
         )
+        
+        # Only set password if provided and auth provider is password
+        if user.password and auth_provider == AuthProvider.PASSWORD:
+            db_user.hashed_password = get_password_hash(user.password)
+            
         self.db.add(db_user)
         self.db.commit()
         self.db.refresh(db_user)
         return UserResponse.from_orm(db_user)
 
-    def update_user(self, user_id: UUID, user_data: UserUpdate) -> UserResponse:
+    def update_user(self, user_id: UUID, user: UserUpdate) -> UserResponse:
         """Update a user."""
         db_user = self.db.query(User).filter(User.id == user_id).first()
         if not db_user:
             raise ValueError("User not found")
 
-        update_data = user_data.dict(exclude_unset=True)
+        update_data = user.model_dump(exclude_unset=True)
         if "password" in update_data:
-            update_data["password_hash"] = get_password_hash(update_data.pop("password"))
+            db_user.hashed_password = get_password_hash(update_data.pop("password"))
+            db_user.auth_provider = AuthProvider.PASSWORD
 
         for key, value in update_data.items():
             setattr(db_user, key, value)
@@ -118,4 +137,36 @@ class UserService:
         db_user.is_active = True
         self.db.commit()
         self.db.refresh(db_user)
-        return UserResponse.from_orm(db_user) 
+        return UserResponse.from_orm(db_user)
+
+    def create_password_user(self, email: str, password: str) -> UserResponse:
+        """Create a new user with password authentication."""
+        user_data = UserCreate(
+            email=email,
+            password=password,
+            auth_provider=AuthProvider.PASSWORD,
+            is_active=True,
+            is_verified=True
+        )
+        return self.create_user(user_data)
+
+    def update_user_password(self, email: str, new_password: str) -> None:
+        """Update a user's password directly."""
+        user = self.db.query(User).filter(User.email == email).first()
+        if not user:
+            raise ValueError("User not found")
+        
+        user.hashed_password = get_password_hash(new_password)
+        user.auth_provider = AuthProvider.PASSWORD
+        self.db.commit()
+
+    def update_user_auth_provider(self, email: str, auth_provider: AuthProvider) -> UserResponse:
+        """Update a user's authentication provider."""
+        user = self.db.query(User).filter(User.email == email).first()
+        if not user:
+            raise ValueError("User not found")
+        
+        user.auth_provider = auth_provider
+        self.db.commit()
+        self.db.refresh(user)
+        return UserResponse.from_orm(user) 
