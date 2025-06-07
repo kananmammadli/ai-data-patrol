@@ -39,9 +39,11 @@ const UserManagement: React.FC = () => {
     page: 1,
     size: 100
   });
+  const [currentUser, setCurrentUser] = useState<User | undefined>(undefined);
 
   useEffect(() => {
     fetchUsers();
+    fetchCurrentUser();
   }, []);
 
   const fetchUsers = async () => {
@@ -70,6 +72,15 @@ const UserManagement: React.FC = () => {
       setUsers([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCurrentUser = async () => {
+    try {
+      const user = await userService.getCurrentUser();
+      setCurrentUser(user);
+    } catch (err) {
+      console.error('Error fetching current user:', err);
     }
   };
 
@@ -162,6 +173,7 @@ const UserManagement: React.FC = () => {
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Role</TableCell>
+              <TableCell>Auth Provider</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -169,7 +181,7 @@ const UserManagement: React.FC = () => {
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={6} align="center">
                   <Typography>No users found</Typography>
                 </TableCell>
               </TableRow>
@@ -179,6 +191,7 @@ const UserManagement: React.FC = () => {
                   <TableCell>{`${user.first_name} ${user.last_name}`}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.role}</TableCell>
+                  <TableCell>{user.auth_provider}</TableCell>
                   <TableCell>{user.is_active ? 'Active' : 'Inactive'}</TableCell>
                   <TableCell>
                     <IconButton color="primary" onClick={() => handleEditClick(user)}>
@@ -204,6 +217,7 @@ const UserManagement: React.FC = () => {
             initialData={selectedUser}
             onSubmit={handleFormSubmit}
             isEdit={!!selectedUser}
+            isAdmin={currentUser?.role === 'admin'}
           />
         </DialogContent>
       </Dialog>

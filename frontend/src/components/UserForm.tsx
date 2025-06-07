@@ -3,29 +3,43 @@ import {
   Box,
   TextField,
   Button,
+  Grid,
+  Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Grid,
-  Typography,
   SelectChangeEvent,
+  Switch,
+  FormControlLabel,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { CreateUserData, UpdateUserData, User } from '../services/userService';
 
 interface UserFormProps {
-  initialData?: User | null;
+  initialData?: User;
   onSubmit: (data: CreateUserData | UpdateUserData) => Promise<void>;
   isEdit?: boolean;
+  isAdmin?: boolean;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ initialData, onSubmit, isEdit = false }) => {
+const UserForm: React.FC<UserFormProps> = ({ 
+  initialData, 
+  onSubmit, 
+  isEdit = false,
+  isAdmin = false 
+}) => {
   const [formData, setFormData] = useState<CreateUserData | UpdateUserData>(
     isEdit
       ? {
           first_name: initialData?.first_name || '',
           last_name: initialData?.last_name || '',
           role: initialData?.role || 'viewer',
+          email: initialData?.email || '',
+          is_active: initialData?.is_active ?? true,
+          ...(isAdmin && { password: '' })
         }
       : {
           email: '',
@@ -33,14 +47,16 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSubmit, isEdit = fal
           first_name: '',
           last_name: '',
           role: 'viewer',
+          is_active: true
         }
   );
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -50,6 +66,10 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSubmit, isEdit = fal
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,31 +107,45 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSubmit, isEdit = fal
             onChange={handleChange}
           />
         </Grid>
-        {!isEdit && (
-          <>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={(formData as CreateUserData).email}
-                onChange={handleChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Password"
-                name="password"
-                type="password"
-                value={(formData as CreateUserData).password}
-                onChange={handleChange}
-              />
-            </Grid>
-          </>
+        {(isAdmin || !isEdit) && (
+          <Grid item xs={12}>
+            <TextField
+              required
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={isEdit && !isAdmin}
+            />
+          </Grid>
+        )}
+        {(isAdmin || !isEdit) && (
+          <Grid item xs={12}>
+            <TextField
+              required={!isEdit}
+              fullWidth
+              label="Password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password || ''}
+              onChange={handleChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
         )}
         <Grid item xs={12}>
           <FormControl fullWidth>
@@ -121,6 +155,7 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSubmit, isEdit = fal
               value={formData.role}
               label="Role"
               onChange={handleSelectChange}
+              disabled={!isAdmin}
             >
               <MenuItem value="admin">Admin</MenuItem>
               <MenuItem value="configurator">Configurator</MenuItem>
@@ -128,8 +163,27 @@ const UserForm: React.FC<UserFormProps> = ({ initialData, onSubmit, isEdit = fal
             </Select>
           </FormControl>
         </Grid>
+        {isAdmin && isEdit && (
+          <Grid item xs={12}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formData.is_active}
+                  onChange={handleChange}
+                  name="is_active"
+                />
+              }
+              label="Active"
+            />
+          </Grid>
+        )}
         <Grid item xs={12}>
-          <Button type="submit" variant="contained" color="primary">
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+          >
             {isEdit ? 'Update User' : 'Create User'}
           </Button>
         </Grid>

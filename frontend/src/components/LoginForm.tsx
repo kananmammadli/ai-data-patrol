@@ -7,15 +7,22 @@ import {
   Paper,
   Divider,
   Alert,
+  Link,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
 import { GoogleSignInButton } from './GoogleSignInButton';
 import { authService } from '../services/authService';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleEmailPasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,12 +31,16 @@ export const LoginForm: React.FC = () => {
 
     try {
       await authService.login(email, password);
-      window.location.href = '/';
+      navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to login');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -77,11 +88,24 @@ export const LoginForm: React.FC = () => {
           <TextField
             fullWidth
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
             required
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <Button
             fullWidth
@@ -102,6 +126,15 @@ export const LoginForm: React.FC = () => {
         </Divider>
 
         <GoogleSignInButton />
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Link href="/password-reset" variant="body2">
+            Forgot password?
+          </Link>
+          <Link href="/register" variant="body2">
+            {"Don't have an account? Sign Up"}
+          </Link>
+        </Box>
       </Paper>
     </Box>
   );

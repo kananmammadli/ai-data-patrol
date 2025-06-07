@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlalchemy.orm import Session
 from uuid import UUID
 from fastapi import status
@@ -143,7 +143,7 @@ def update_user_auth_provider(
 @router.post("/users/{user_id}/password", response_model=UserResponse)
 def update_user_password(
     user_id: UUID,
-    password: str,
+    password_data: dict = Body(...),
     db: Session = Depends(get_db),
     current_user: UserResponse = Depends(get_current_user)
 ):
@@ -161,6 +161,12 @@ def update_user_password(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
+            )
+        password = password_data.get("password")
+        if not password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password is required"
             )
         user_service.update_user_password(user.email, password)
         return user_service.get_user_by_id(user_id)

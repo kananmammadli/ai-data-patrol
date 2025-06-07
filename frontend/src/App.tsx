@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Container, Box, Button, ThemeProvider, CssBaseline, createTheme } from '@mui/material';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Container, Box, Button, ThemeProvider, CssBaseline, createTheme, CircularProgress } from '@mui/material';
 import UserManagement from './pages/UserManagement';
 import { Login } from './pages/Login';
+import { PasswordResetForm } from './components/PasswordResetForm';
+import { PasswordUpdateForm } from './components/PasswordUpdateForm';
+import Home from './pages/Home';
 import { authService } from './services/authService';
 
 // Create a theme instance
@@ -23,16 +26,54 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 const AuthCallbackHandler: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const token = urlParams.get('token');
-    if (token) {
-      authService.handleGoogleCallback(token);
-    }
-  }, [location]);
+  React.useEffect(() => {
+    const handleCallback = async () => {
+      try {
+        const urlParams = new URLSearchParams(location.search);
+        const token = urlParams.get('token');
+        
+        if (!token) {
+          console.error('No token found in callback URL');
+          navigate('/login');
+          return;
+        }
 
-  return <Navigate to="/users" replace />;
+        console.log('Processing auth callback...');
+        await authService.handleGoogleCallback(token);
+        console.log('Auth callback processed successfully');
+        
+        // Navigate to home page after successful authentication
+        navigate('/', { replace: true });
+      } catch (error) {
+        console.error('Error processing auth callback:', error);
+        // Show error message to user
+        alert('Authentication failed. Please try again.');
+        navigate('/login', { replace: true });
+      }
+    };
+
+    handleCallback();
+  }, [location, navigate]);
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        p: 2,
+      }}
+    >
+      <CircularProgress />
+      <Typography variant="h6" sx={{ mt: 2 }}>
+        Processing authentication...
+      </Typography>
+    </Box>
+  );
 };
 
 const App: React.FC = () => {
@@ -66,6 +107,15 @@ const App: React.FC = () => {
           <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/auth/callback" element={<AuthCallbackHandler />} />
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <Home />
+                  </PrivateRoute>
+                }
+              />
               <Route
                 path="/users"
                 element={
@@ -75,16 +125,21 @@ const App: React.FC = () => {
                 }
               />
               <Route
-                path="/"
+                path="/password/reset"
                 element={
-                  authService.isAuthenticated() ? (
-                    <Navigate to="/users" replace />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
+                  <PrivateRoute>
+                    <PasswordResetForm />
+                  </PrivateRoute>
                 }
               />
-              <Route path="/auth/callback" element={<AuthCallbackHandler />} />
+              <Route
+                path="/password/update"
+                element={
+                  <PrivateRoute>
+                    <PasswordUpdateForm />
+                  </PrivateRoute>
+                }
+              />
             </Routes>
           </Container>
         </Box>
