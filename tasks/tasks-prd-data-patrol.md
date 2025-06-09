@@ -28,7 +28,7 @@
   - [x] 1.1 Initialize TypeScript project with necessary dependencies
   - [x] 1.2 Set up project structure (frontend/backend separation)
   - [x] 1.3 Configure development environment (ESLint, Prettier, etc.)
-  - [ ] 1.4 Set up testing framework (Jest)
+  - [x] 1.4 Set up testing framework (Jest)
   - [ ] 1.5 Configure CI/CD pipeline
   - [ ] 1.6 Set up logging and monitoring
   - [ ] 1.7 Create initial database schema migrations
