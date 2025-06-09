@@ -1,9 +1,22 @@
 {
   "name": "ai-data-patrol",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Data quality monitoring system",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && npm run dev",
+    "start:frontend": "cd frontend && npm start",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test"
   },
   "repository": {
     "type": "git",
@@ -16,9 +29,9 @@
     "url": "https://github.com/kananmammadli/ai-data-patrol/issues"
   },
   "homepage": "https://github.com/kananmammadli/ai-data-patrol#readme",
-  "description": "",
   "devDependencies": {
     "@types/node": "^22.15.30",
+    "concurrently": "^8.2.2",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
