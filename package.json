@@ -4,24 +4,20 @@
   "description": "Data quality monitoring system",
   "private": true,
   "workspaces": [
-    "backend",
     "frontend"
   ],
   "scripts": {
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
-    "start:backend": "cd backend && npm run dev",
+    "start:backend": "cd backend && uvicorn app.main:app --reload",
     "start:frontend": "cd frontend && npm start",
-    "build": "npm run build:backend && npm run build:frontend",
-    "build:backend": "cd backend && npm run build",
+    "build": "npm run build:frontend",
     "build:frontend": "cd frontend && npm run build",
     "test": "npm run test:backend && npm run test:frontend",
-    "test:backend": "cd backend && npm test",
+    "test:backend": "cd backend_python && pytest",
     "test:frontend": "cd frontend && npm test",
-    "lint": "npm run lint:backend && npm run lint:frontend",
-    "lint:backend": "cd backend && npm run lint",
+    "lint": "npm run lint:frontend",
     "lint:frontend": "cd frontend && npm run lint",
-    "format": "npm run format:backend && npm run format:frontend",
-    "format:backend": "cd backend && npm run format",
+    "format": "npm run format:frontend",
     "format:frontend": "cd frontend && npm run format"
   },
   "repository": {

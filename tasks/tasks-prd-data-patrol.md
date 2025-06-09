@@ -31,7 +31,7 @@
   - [x] 1.4 Set up testing framework (Jest)
   - [ ] 1.5 Configure CI/CD pipeline
   - [ ] 1.6 Set up logging and monitoring
-  - [ ] 1.7 Create initial database schema migrations
+  - [x] 1.7 Create initial database schema migrations
 
 - [ ] 2.0 Implement Database Connectivity Layer
   - [ ] 2.1 Create database connection manager interface
