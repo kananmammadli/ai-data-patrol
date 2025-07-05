@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.schemas.data_quality import DataQualityCheck, DataQualityCheckCreate
@@ -48,3 +48,22 @@ async def validate_sql(query: dict):
     if is_valid:
         return {"valid": True}
     return {"valid": False, "error": error}
+
+@router.get("/{check_id}/expiry", response_model=int)
+async def get_expiry_period(check_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(DataQualityCheckModel).where(DataQualityCheckModel.id == check_id))
+    db_check = result.scalar_one_or_none()
+    if not db_check:
+        raise HTTPException(status_code=404, detail="Check not found")
+    return db_check.expiry_period
+
+@router.put("/{check_id}/expiry", response_model=int)
+async def update_expiry_period(check_id: int, expiry_period: int = Body(...), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(DataQualityCheckModel).where(DataQualityCheckModel.id == check_id))
+    db_check = result.scalar_one_or_none()
+    if not db_check:
+        raise HTTPException(status_code=404, detail="Check not found")
+    db_check.expiry_period = expiry_period
+    await db.commit()
+    await db.refresh(db_check)
+    return db_check.expiry_period

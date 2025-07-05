@@ -25,6 +25,7 @@
 - `backend/app/api/v1/severity.py` - FastAPI endpoints for managing severity configs and recipient lists
 - `backend/app/core/sql_validation.py` - Utility for SQL syntax validation
 - `backend/app/core/scheduler.py` - APScheduler-based check scheduling system
+- `backend/app/api/v1/checks.py` - FastAPI endpoints for managing expiry period configuration
 
 ### Notes
 
@@ -63,7 +64,7 @@
   - [x] 3.4 Implement check scheduling system
   - [x] 3.5 Create severity level configuration
   - [x] 3.6 Build recipient list management
-  - [ ] 3.7 Implement expiry period configuration
+  - [x] 3.7 Implement expiry period configuration
   - [ ] 3.8 Create check organization system (departments/projects)
   - [ ] 3.9 Implement tagging system
   - [ ] 3.10 Build check execution engine
