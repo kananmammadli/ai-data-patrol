@@ -18,6 +18,7 @@
 - `backend/app/core/mysql_connector.py` - Async MySQL connector implementation
 - `backend/app/core/redshift_connector.py` - Async Redshift connector implementation (PostgreSQL-compatible)
 - `backend/app/core/snowflake_connector.py` - Snowflake connector implementation (threaded, not async)
+- `backend/app/core/secure_storage.py` - Utilities for encrypting and decrypting sensitive credentials
 
 ### Notes
 
@@ -45,7 +46,7 @@
   - [x] 2.4 Implement Redshift connector
   - [x] 2.5 Implement Snowflake connector
   - [x] 2.6 Create connection pool management system
-  - [ ] 2.7 Implement secure credential storage
+  - [x] 2.7 Implement secure credential storage
   - [ ] 2.8 Add connection health monitoring
   - [ ] 2.9 Write tests for database connectivity
 
