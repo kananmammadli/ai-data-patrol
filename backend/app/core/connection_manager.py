@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict
 from .postgres_connector import PostgresConnector
 from .mysql_connector import MySQLConnector
+from .redshift_connector import RedshiftConnector
 
 class BaseDBConnector(ABC):
     """Abstract base class for all database connectors."""
@@ -27,6 +28,7 @@ class ConnectionManager:
         # Register built-in connectors
         self.register_connector('postgresql', PostgresConnector)
         self.register_connector('mysql', MySQLConnector)
+        self.register_connector('redshift', RedshiftConnector)
 
     def register_connector(self, db_type: str, connector_cls):
         self._connectors[db_type] = connector_cls
