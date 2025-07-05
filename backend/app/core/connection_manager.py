@@ -3,6 +3,7 @@ from typing import Any, Dict
 from .postgres_connector import PostgresConnector
 from .mysql_connector import MySQLConnector
 from .redshift_connector import RedshiftConnector
+from .snowflake_connector import SnowflakeConnector
 
 class BaseDBConnector(ABC):
     """Abstract base class for all database connectors."""
@@ -29,6 +30,7 @@ class ConnectionManager:
         self.register_connector('postgresql', PostgresConnector)
         self.register_connector('mysql', MySQLConnector)
         self.register_connector('redshift', RedshiftConnector)
+        self.register_connector('snowflake', SnowflakeConnector)
 
     def register_connector(self, db_type: str, connector_cls):
         self._connectors[db_type] = connector_cls

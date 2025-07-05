@@ -17,6 +17,7 @@
 - `backend/app/core/postgres_connector.py` - Async PostgreSQL connector implementation
 - `backend/app/core/mysql_connector.py` - Async MySQL connector implementation
 - `backend/app/core/redshift_connector.py` - Async Redshift connector implementation (PostgreSQL-compatible)
+- `backend/app/core/snowflake_connector.py` - Snowflake connector implementation (threaded, not async)
 
 ### Notes
 
@@ -42,7 +43,7 @@
   - [x] 2.2 Implement PostgreSQL connector
   - [x] 2.3 Implement MySQL connector
   - [x] 2.4 Implement Redshift connector
-  - [ ] 2.5 Implement Snowflake connector
+  - [x] 2.5 Implement Snowflake connector
   - [ ] 2.6 Create connection pool management system
   - [ ] 2.7 Implement secure credential storage
   - [ ] 2.8 Add connection health monitoring
