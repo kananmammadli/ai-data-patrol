@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
+from .postgres_connector import PostgresConnector
 
 class BaseDBConnector(ABC):
     """Abstract base class for all database connectors."""
@@ -22,6 +23,8 @@ class ConnectionManager:
     """Manages multiple database connectors by type and id."""
     def __init__(self):
         self._connectors = {}
+        # Register built-in connectors
+        self.register_connector('postgresql', PostgresConnector)
 
     def register_connector(self, db_type: str, connector_cls):
         self._connectors[db_type] = connector_cls
