@@ -20,6 +20,9 @@
 - `backend/app/core/snowflake_connector.py` - Snowflake connector implementation (threaded, not async)
 - `backend/app/core/secure_storage.py` - Utilities for encrypting and decrypting sensitive credentials
 - `backend/app/tests/test_connectors.py` - Unit tests for database connectors and connection manager
+- `backend/app/models/data_quality.py` - Data quality models, now with check configuration fields
+- `backend/app/schemas/data_quality.py` - Pydantic schemas for check configuration
+- `backend/app/api/v1/checks.py` - FastAPI endpoints for check creation, editing, and retrieval
 
 ### Notes
 
@@ -52,8 +55,8 @@
   - [x] 2.9 Write tests for database connectivity
 
 - [ ] 3.0 Build Check Configuration System
-  - [ ] 3.1 Create check configuration data models
-  - [ ] 3.2 Implement check creation/editing API
+  - [x] 3.1 Create check configuration data models
+  - [x] 3.2 Implement check creation/editing API
   - [ ] 3.3 Build SQL query validation system
   - [ ] 3.4 Implement check scheduling system
   - [ ] 3.5 Create severity level configuration

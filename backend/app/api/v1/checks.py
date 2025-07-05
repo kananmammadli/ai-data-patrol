@@ -1,0 +1,41 @@
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from app.schemas.data_quality import DataQualityCheck, DataQualityCheckCreate
+from app.models.data_quality import DataQualityCheck as DataQualityCheckModel
+from app.core.database import get_db
+
+router = APIRouter(prefix="/checks", tags=["checks"])
+
+@router.post("/", response_model=DataQualityCheck)
+async def create_check(check: DataQualityCheckCreate, db: AsyncSession = Depends(get_db)):
+    db_check = DataQualityCheckModel(**check.dict())
+    db.add(db_check)
+    await db.commit()
+    await db.refresh(db_check)
+    return db_check
+
+@router.put("/{check_id}", response_model=DataQualityCheck)
+async def update_check(check_id: int, check: DataQualityCheckCreate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(DataQualityCheckModel).where(DataQualityCheckModel.id == check_id))
+    db_check = result.scalar_one_or_none()
+    if not db_check:
+        raise HTTPException(status_code=404, detail="Check not found")
+    for key, value in check.dict().items():
+        setattr(db_check, key, value)
+    await db.commit()
+    await db.refresh(db_check)
+    return db_check
+
+@router.get("/{check_id}", response_model=DataQualityCheck)
+async def get_check(check_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(DataQualityCheckModel).where(DataQualityCheckModel.id == check_id))
+    db_check = result.scalar_one_or_none()
+    if not db_check:
+        raise HTTPException(status_code=404, detail="Check not found")
+    return db_check
+
+@router.get("/", response_model=list[DataQualityCheck])
+async def list_checks(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(DataQualityCheckModel))
+    return result.scalars().all()

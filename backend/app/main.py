@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 from app.core.logging_config import get_logger
+from app.api.v1 import checks
 
 app = FastAPI(
     title="Data-Patrol",
@@ -38,3 +39,5 @@ app.add_middleware(
 async def root():
     logger.info("Root endpoint accessed.")
     return {"message": "Welcome to Data-Patrol API"}
+
+app.include_router(checks.router)
