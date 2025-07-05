@@ -13,6 +13,7 @@
 - `tests/` - Test files for all components
 - `frontend/` - React-based frontend application
 - `migrations/` - Database schema migrations
+- `backend/app/core/connection_manager.py` - Database connection manager interface and base connector class
 
 ### Notes
 
@@ -34,7 +35,7 @@
   - [x] 1.7 Create initial database schema migrations
 
 - [ ] 2.0 Implement Database Connectivity Layer
-  - [ ] 2.1 Create database connection manager interface
+  - [x] 2.1 Create database connection manager interface
   - [ ] 2.2 Implement PostgreSQL connector
   - [ ] 2.3 Implement MySQL connector
   - [ ] 2.4 Implement Redshift connector
