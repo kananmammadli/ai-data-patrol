@@ -24,6 +24,7 @@
 - `backend/app/schemas/data_quality.py` - Pydantic schemas for check configuration
 - `backend/app/api/v1/checks.py` - FastAPI endpoints for check creation, editing, and retrieval
 - `backend/app/core/sql_validation.py` - Utility for SQL syntax validation
+- `backend/app/core/scheduler.py` - APScheduler-based check scheduling system
 
 ### Notes
 
@@ -59,7 +60,7 @@
   - [x] 3.1 Create check configuration data models
   - [x] 3.2 Implement check creation/editing API
   - [x] 3.3 Build SQL query validation system
-  - [ ] 3.4 Implement check scheduling system
+  - [x] 3.4 Implement check scheduling system
   - [ ] 3.5 Create severity level configuration
   - [ ] 3.6 Build recipient list management
   - [ ] 3.7 Implement expiry period configuration

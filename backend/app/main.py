@@ -4,6 +4,7 @@ from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 from app.core.logging_config import get_logger
 from app.api.v1 import checks
+from app.core.scheduler import start_scheduler
 
 app = FastAPI(
     title="Data-Patrol",
@@ -39,5 +40,9 @@ app.add_middleware(
 async def root():
     logger.info("Root endpoint accessed.")
     return {"message": "Welcome to Data-Patrol API"}
+
+@app.on_event("startup")
+async def startup_event():
+    start_scheduler()
 
 app.include_router(checks.router)
