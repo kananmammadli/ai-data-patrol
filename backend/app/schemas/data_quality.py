@@ -1,7 +1,7 @@
 from pydantic import BaseModel, validator
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from datetime import datetime
-from ..models.data_quality import DatabaseType, CheckStatus
+from ..models.data_quality import DatabaseType, CheckStatus, SeverityLevel
 
 class DatabaseConnectionBase(BaseModel):
     name: str
@@ -24,6 +24,10 @@ class DataQualityCheckBase(BaseModel):
     check_type: str
     check_params: Dict[str, Any]
     schedule: str
+    expiry_period: Optional[int] = None
+    tags: Optional[list[str]] = None
+    organization: Optional[str] = None
+    troubleshooting: Optional[str] = None
 
 class DataQualityCheckCreate(DataQualityCheckBase):
     database_id: int
@@ -40,6 +44,8 @@ class DataQualityCheck(DataQualityCheckBase):
 class DataQualityResultBase(BaseModel):
     check_id: int
     status: CheckStatus
+    severity: int = 0  # 0 means normal, output of check script
+    recipients: Optional[list[str]] = None  # based on severity
     result_data: Optional[Dict[str, Any]]
 
 class DataQualityResultCreate(DataQualityResultBase):
