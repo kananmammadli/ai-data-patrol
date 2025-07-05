@@ -68,3 +68,16 @@ class DataQualityResult(Base):
     completed_at = Column(DateTime)
 
     check = relationship("DataQualityCheck", back_populates="results")
+
+class SeverityConfig(Base):
+    __tablename__ = "severity_configs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    check_id = Column(Integer, ForeignKey("data_quality_checks.id"))
+    severity = Column(Integer)  # 0=normal, 1=warning, 2=critical, etc.
+    recipients = Column(JSON, default=list)  # list of emails/user ids
+    threshold = Column(Integer, default=0)  # threshold value for this severity
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    check = relationship("DataQualityCheck", backref="severity_configs")

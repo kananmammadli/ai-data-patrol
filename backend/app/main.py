@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 from app.core.logging_config import get_logger
-from app.api.v1 import checks
+from app.api.v1 import checks, severity
 from app.core.scheduler import start_scheduler
 
 app = FastAPI(
@@ -46,3 +46,4 @@ async def startup_event():
     start_scheduler()
 
 app.include_router(checks.router)
+app.include_router(severity.router)

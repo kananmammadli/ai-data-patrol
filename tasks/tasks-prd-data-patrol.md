@@ -20,9 +20,9 @@
 - `backend/app/core/snowflake_connector.py` - Snowflake connector implementation (threaded, not async)
 - `backend/app/core/secure_storage.py` - Utilities for encrypting and decrypting sensitive credentials
 - `backend/app/tests/test_connectors.py` - Unit tests for database connectors and connection manager
-- `backend/app/models/data_quality.py` - Data quality models, now with check configuration fields
-- `backend/app/schemas/data_quality.py` - Pydantic schemas for check configuration
-- `backend/app/api/v1/checks.py` - FastAPI endpoints for check creation, editing, and retrieval
+- `backend/app/models/data_quality.py` - Data quality models, now with SeverityConfig for severity/recipient mapping
+- `backend/app/schemas/data_quality.py` - Pydantic schemas for SeverityConfig
+- `backend/app/api/v1/severity.py` - FastAPI endpoints for managing severity configurations
 - `backend/app/core/sql_validation.py` - Utility for SQL syntax validation
 - `backend/app/core/scheduler.py` - APScheduler-based check scheduling system
 
@@ -61,7 +61,7 @@
   - [x] 3.2 Implement check creation/editing API
   - [x] 3.3 Build SQL query validation system
   - [x] 3.4 Implement check scheduling system
-  - [ ] 3.5 Create severity level configuration
+  - [x] 3.5 Create severity level configuration
   - [ ] 3.6 Build recipient list management
   - [ ] 3.7 Implement expiry period configuration
   - [ ] 3.8 Create check organization system (departments/projects)

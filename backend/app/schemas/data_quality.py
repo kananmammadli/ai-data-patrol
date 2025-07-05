@@ -58,3 +58,20 @@ class DataQualityResult(DataQualityResultBase):
 
     class Config:
         orm_mode = True
+
+class SeverityConfigBase(BaseModel):
+    severity: int
+    recipients: list[str]
+    threshold: int = 0
+
+class SeverityConfigCreate(SeverityConfigBase):
+    check_id: int
+
+class SeverityConfig(SeverityConfigBase):
+    id: int
+    check_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True
