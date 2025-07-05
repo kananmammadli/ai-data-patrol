@@ -21,3 +21,12 @@ class PostgresConnector(BaseDBConnector):
         if params:
             return await self._conn.fetch(query, *params.values())
         return await self._conn.fetch(query)
+
+    async def check_health(self) -> bool:
+        try:
+            if not self._conn:
+                await self.connect()
+            result = await self._conn.fetchval("SELECT 1")
+            return result == 1
+        except Exception:
+            return False

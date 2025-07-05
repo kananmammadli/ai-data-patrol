@@ -22,6 +22,11 @@ class BaseDBConnector(ABC):
     async def execute_query(self, query: str, params: Dict[str, Any] = None) -> Any:
         pass
 
+    @abstractmethod
+    async def check_health(self) -> bool:
+        """Return True if connection is healthy, else False."""
+        pass
+
 class ConnectionManager:
     """Manages multiple database connectors and connection pools by type and id."""
     def __init__(self):

@@ -27,3 +27,14 @@ class MySQLConnector(BaseDBConnector):
         async with self._conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute(query, tuple(params.values()) if params else ())
             return await cur.fetchall()
+
+    async def check_health(self) -> bool:
+        try:
+            if not self._conn:
+                await self.connect()
+            async with self._conn.cursor() as cur:
+                await cur.execute("SELECT 1")
+                result = await cur.fetchone()
+                return result and result[0] == 1
+        except Exception:
+            return False

@@ -29,3 +29,18 @@ class SnowflakeConnector(BaseDBConnector):
                 cur.execute(query, params or {})
                 return cur.fetchall()
         return await loop.run_in_executor(None, run_query)
+
+    async def check_health(self) -> bool:
+        import asyncio
+        try:
+            if not self._conn:
+                await self.connect()
+            loop = asyncio.get_event_loop()
+            def run_query():
+                with self._conn.cursor() as cur:
+                    cur.execute("SELECT 1")
+                    result = cur.fetchone()
+                    return result and result[0] == 1
+            return await loop.run_in_executor(None, run_query)
+        except Exception:
+            return False
