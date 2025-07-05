@@ -19,6 +19,7 @@
 - `backend/app/core/redshift_connector.py` - Async Redshift connector implementation (PostgreSQL-compatible)
 - `backend/app/core/snowflake_connector.py` - Snowflake connector implementation (threaded, not async)
 - `backend/app/core/secure_storage.py` - Utilities for encrypting and decrypting sensitive credentials
+- `backend/app/tests/test_connectors.py` - Unit tests for database connectors and connection manager
 
 ### Notes
 
@@ -39,7 +40,7 @@
   - [x] 1.6 Set up logging and monitoring
   - [x] 1.7 Create initial database schema migrations
 
-- [ ] 2.0 Implement Database Connectivity Layer
+- [x] 2.0 Implement Database Connectivity Layer
   - [x] 2.1 Create database connection manager interface
   - [x] 2.2 Implement PostgreSQL connector
   - [x] 2.3 Implement MySQL connector
@@ -48,7 +49,7 @@
   - [x] 2.6 Create connection pool management system
   - [x] 2.7 Implement secure credential storage
   - [x] 2.8 Add connection health monitoring
-  - [ ] 2.9 Write tests for database connectivity
+  - [x] 2.9 Write tests for database connectivity
 
 - [ ] 3.0 Build Check Configuration System
   - [ ] 3.1 Create check configuration data models
