@@ -23,6 +23,7 @@
 - `backend/app/models/data_quality.py` - Data quality models, now with check configuration fields
 - `backend/app/schemas/data_quality.py` - Pydantic schemas for check configuration
 - `backend/app/api/v1/checks.py` - FastAPI endpoints for check creation, editing, and retrieval
+- `backend/app/core/sql_validation.py` - Utility for SQL syntax validation
 
 ### Notes
 
@@ -57,7 +58,7 @@
 - [ ] 3.0 Build Check Configuration System
   - [x] 3.1 Create check configuration data models
   - [x] 3.2 Implement check creation/editing API
-  - [ ] 3.3 Build SQL query validation system
+  - [x] 3.3 Build SQL query validation system
   - [ ] 3.4 Implement check scheduling system
   - [ ] 3.5 Create severity level configuration
   - [ ] 3.6 Build recipient list management

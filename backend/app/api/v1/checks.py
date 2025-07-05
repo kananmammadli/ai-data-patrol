@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 from app.schemas.data_quality import DataQualityCheck, DataQualityCheckCreate
 from app.models.data_quality import DataQualityCheck as DataQualityCheckModel
 from app.core.database import get_db
+from app.core.sql_validation import validate_sql_syntax
 
 router = APIRouter(prefix="/checks", tags=["checks"])
 
@@ -39,3 +40,11 @@ async def get_check(check_id: int, db: AsyncSession = Depends(get_db)):
 async def list_checks(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(DataQualityCheckModel))
     return result.scalars().all()
+
+@router.post("/validate-sql")
+async def validate_sql(query: dict):
+    sql = query.get("query")
+    is_valid, error = validate_sql_syntax(sql)
+    if is_valid:
+        return {"valid": True}
+    return {"valid": False, "error": error}
