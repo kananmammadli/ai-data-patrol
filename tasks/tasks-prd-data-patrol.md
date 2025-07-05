@@ -22,7 +22,7 @@
 - `backend/app/tests/test_connectors.py` - Unit tests for database connectors and connection manager
 - `backend/app/models/data_quality.py` - Data quality models, now with SeverityConfig for severity/recipient mapping
 - `backend/app/schemas/data_quality.py` - Pydantic schemas for SeverityConfig
-- `backend/app/api/v1/severity.py` - FastAPI endpoints for managing severity configurations
+- `backend/app/api/v1/severity.py` - FastAPI endpoints for managing severity configs and recipient lists
 - `backend/app/core/sql_validation.py` - Utility for SQL syntax validation
 - `backend/app/core/scheduler.py` - APScheduler-based check scheduling system
 
@@ -62,7 +62,7 @@
   - [x] 3.3 Build SQL query validation system
   - [x] 3.4 Implement check scheduling system
   - [x] 3.5 Create severity level configuration
-  - [ ] 3.6 Build recipient list management
+  - [x] 3.6 Build recipient list management
   - [ ] 3.7 Implement expiry period configuration
   - [ ] 3.8 Create check organization system (departments/projects)
   - [ ] 3.9 Implement tagging system
