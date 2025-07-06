@@ -47,13 +47,14 @@ class DataQualityCheck(Base):
     schedule = Column(String)  # cron expression
     expiry_period = Column(Integer, nullable=True)  # in minutes or seconds
     tags = Column(JSON, nullable=True)  # list of tags
-    organization = Column(String, nullable=True)  # department/project
+    organization_node_id = Column(Integer, ForeignKey("organization_nodes.id"), nullable=True)
     troubleshooting = Column(String, nullable=True)  # troubleshooting instructions
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     database = relationship("DatabaseConnection", back_populates="checks")
     results = relationship("DataQualityResult", back_populates="check")
+    organization_node = relationship("OrganizationNode", back_populates="checks")
 
 class DataQualityResult(Base):
     __tablename__ = "data_quality_results"
@@ -81,3 +82,21 @@ class SeverityConfig(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     check = relationship("DataQualityCheck", backref="severity_configs")
+
+class OrganizationNodeType(str, enum.Enum):
+    DEPARTMENT = "department"
+    PROJECT = "project"
+
+class OrganizationNode(Base):
+    __tablename__ = "organization_nodes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    type = Column(SQLEnum(OrganizationNodeType), nullable=False)
+    parent_id = Column(Integer, ForeignKey("organization_nodes.id"), nullable=True)
+    description = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    parent = relationship("OrganizationNode", remote_side=[id], backref="children")
+    checks = relationship("DataQualityCheck", back_populates="organization_node")

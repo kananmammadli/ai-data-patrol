@@ -19,6 +19,24 @@ class DatabaseConnection(DatabaseConnectionBase):
     class Config:
         orm_mode = True
 
+class OrganizationNodeBase(BaseModel):
+    name: str
+    type: str  # 'department' or 'project'
+    parent_id: Optional[int] = None
+    description: Optional[str] = None
+
+class OrganizationNodeCreate(OrganizationNodeBase):
+    pass
+
+class OrganizationNode(OrganizationNodeBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    children: Optional[list['OrganizationNode']] = []
+
+    class Config:
+        orm_mode = True
+
 class DataQualityCheckBase(BaseModel):
     name: str
     check_type: str
@@ -26,7 +44,7 @@ class DataQualityCheckBase(BaseModel):
     schedule: str
     expiry_period: Optional[int] = None
     tags: Optional[list[str]] = None
-    organization: Optional[str] = None
+    organization_node_id: Optional[int] = None  # FK to OrganizationNode
     troubleshooting: Optional[str] = None
 
 class DataQualityCheckCreate(DataQualityCheckBase):
