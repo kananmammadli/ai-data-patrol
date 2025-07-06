@@ -65,12 +65,17 @@
   - [x] 3.5 Create severity level configuration
   - [x] 3.6 Build recipient list management
   - [x] 3.7 Implement expiry period configuration
-  - [ ] 3.8 Create check organization system (departments/projects)
+  - [x] 3.8 Create check organization system (departments/projects)
   - [ ] 3.9 Implement tagging system
   - [ ] 3.10 Build check execution engine
   - [ ] 3.11 Implement result storage system
   - [ ] 3.12 Add troubleshooting instructions management
   - [ ] 3.13 Write tests for check configuration
+  - [ ] 3.14 Implement notification rules:
+    - Support recipient_list for severity ranges
+    - Support expiry period for severity ranges
+    - Allow independent configuration of recipient and expiry ranges (e.g. 1-: it_oper_team@company.com, 6-8: CTO@company.com, 1-5: 6hr, 6-8: 2hr)
+    - Ensure each check is associated with one notification rule
 
 - [ ] 4.0 Develop Dashboard and Visualization Features
   - [ ] 4.1 Create main dashboard layout

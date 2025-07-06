@@ -44,9 +44,11 @@ Data-Patrol is a data quality monitoring system designed to help organizations m
    c. SQL query that must include a 'severity' column in its output
    d. Number of output rows to save when severity changes
 2.2. The system must support individual scheduling for each check
-2.3. The system must allow configuring severity-specific settings:
-   a. List of recipients for each severity level
-   b. Expiry period for each severity level
+2.3. The system must support notification rules:
+   - For severity range there should be specified recipient_list
+   - For severity range there should be specified Expiry period
+   Both ranges can be independent, e.g. 1- : it_oper_team@company.com, 6-8: CTO@company.com, 1-5:  6hr, 6-8: 2hr
+   - Each check must be associated with one notification rule
 2.4. The system must support adding troubleshooting instructions for the check
 2.5. The system must support organizing checks by department and project
 2.6. The system must allow adding optional tags to checks for better organization
