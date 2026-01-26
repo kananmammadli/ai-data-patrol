@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Enum as SQLEnum, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -55,6 +55,7 @@ class DataQualityCheck(Base):
     database = relationship("DatabaseConnection", back_populates="checks")
     results = relationship("DataQualityResult", back_populates="check")
     organization_node = relationship("OrganizationNode", back_populates="checks")
+    severity_configs = relationship("SeverityConfig", back_populates="check")
 
 class DataQualityResult(Base):
     __tablename__ = "data_quality_results"
@@ -72,6 +73,7 @@ class DataQualityResult(Base):
 
 class SeverityConfig(Base):
     __tablename__ = "severity_configs"
+    __table_args__ = (UniqueConstraint('check_id', 'severity', name='uix_check_severity'),)
 
     id = Column(Integer, primary_key=True, index=True)
     check_id = Column(Integer, ForeignKey("data_quality_checks.id"))
@@ -81,7 +83,7 @@ class SeverityConfig(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    check = relationship("DataQualityCheck", backref="severity_configs")
+    check = relationship("DataQualityCheck", back_populates="severity_configs")
 
 class OrganizationNodeType(str, enum.Enum):
     DEPARTMENT = "department"

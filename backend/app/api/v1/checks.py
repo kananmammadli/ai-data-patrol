@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.schemas.data_quality import DataQualityCheck, DataQualityCheckCreate
 from app.models.data_quality import DataQualityCheck as DataQualityCheckModel
+from app.models.data_quality import SeverityConfig as SeverityConfigModel
 from app.core.database import get_db
 from app.core.sql_validation import validate_sql_syntax
 
@@ -12,6 +13,11 @@ router = APIRouter(prefix="/checks", tags=["checks"])
 async def create_check(check: DataQualityCheckCreate, db: AsyncSession = Depends(get_db)):
     db_check = DataQualityCheckModel(**check.dict())
     db.add(db_check)
+    # flush to assign id without committing so we can create related default SeverityConfig
+    await db.flush()
+    # ensure there is a default severity config (severity = 0) for this check
+    default_cfg = SeverityConfigModel(check_id=db_check.id, severity=0, recipients=[], threshold=0)
+    db.add(default_cfg)
     await db.commit()
     await db.refresh(db_check)
     return db_check
