@@ -1,0 +1,36 @@
+{
+  "departments": [
+    {
+      "id": "dept-1",
+      "name": "Engineering",
+      "type": "department",
+      "children": [
+        {
+          "id": "proj-1",
+          "name": "Data Platform",
+          "type": "project",
+          "children": []
+        },
+        {
+          "id": "proj-2",
+          "name": "Analytics",
+          "type": "project",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "dept-2",
+      "name": "Finance",
+      "type": "department",
+      "children": [
+        {
+          "id": "proj-3",
+          "name": "Reporting",
+          "type": "project",
+          "children": []
+        }
+      ]
+    }
+  ]
+}
